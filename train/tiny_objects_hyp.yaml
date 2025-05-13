@@ -1,0 +1,39 @@
+# YOLOv8 hyperparameters optimized for tiny electrical symbol detection
+# These parameters override the defaults in train_tiny_objects.py
+
+# Loss weights (higher box loss to prioritize location accuracy)
+box: 12.0  # Box loss gain (higher for tiny objects to focus on accurate localization)
+cls: 0.6   # Class loss gain
+dfl: 2.5   # Distribution focal loss gain
+
+# Augmentation settings - enhanced for tiny objects
+hsv_h: 0.015  # Hue variation - subtle to preserve symbol appearance
+hsv_s: 0.7    # Saturation variation - higher to handle blueprint contrast changes
+hsv_v: 0.5    # Value variation - higher to handle blueprint lighting differences
+degrees: 10.0  # Max rotation degrees - lowered to maintain symbol orientation
+translate: 0.3  # Translation factor - increased to handle varying positions
+scale: 0.6     # Scale factor - increased for symbol size variations
+shear: 7.0     # Shear factor - lowered to maintain symbol shape
+perspective: 0.0003  # Perspective transform - very minimal for tiny objects
+flipud: 0.4    # Flip up-down probability
+fliplr: 0.5    # Flip left-right probability
+mosaic: 1.0    # Mosaic probability - maximum 
+mixup: 0.4     # Mixup probability - increased for small dataset
+copy_paste: 0.4  # Copy-paste probability
+
+# Advanced training settings
+dropout: 0.1   # Feature dropout probability
+label_smoothing: 0.05  # Label smoothing epsilon
+nbs: 64        # Nominal batch size
+cos_lr: true   # Use cosine learning rate scheduler
+close_mosaic: 10  # Close mosaic augmentation N epochs before end
+overlap_mask: true  # Masks should overlap during box scaling
+
+# Optimizer settings
+optimizer: 'AdamW'  # Optimizer (AdamW typically better for small objects)
+lr0: 0.001     # Initial learning rate
+lrf: 0.01      # Final learning rate factor (fraction of lr0)
+momentum: 0.937  # SGD momentum/Adam beta1
+weight_decay: 0.0005  # Optimizer weight decay
+warmup_epochs: 5.0  # Longer warmup for stable training
+warmup_momentum: 0.5  # Initial warmup momentum 

@@ -1,0 +1,12 @@
+# WARNING: This file contains absolute paths and is only for local development.
+# DO NOT use this file in production or when sharing the repository.
+# Instead, use the blueprint_data.yaml file with relative paths.
+
+train: /Users/vanshikwaghela/Projects/TASKS/Palcode/data/images/train
+val: /Users/vanshikwaghela/Projects/TASKS/Palcode/data/images/val
+
+# number of classes
+nc: 3
+ 
+# class names
+names: ['evse', 'panel', 'gfi'] 

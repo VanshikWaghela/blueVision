@@ -1,0 +1,5 @@
+path: /Users/vanshikwaghela/Projects/TASKS/Palcode/data
+train: /Users/vanshikwaghela/Projects/TASKS/Palcode/data/images/train
+val: /Users/vanshikwaghela/Projects/TASKS/Palcode/data/images/val
+nc: 3
+names: [evse, panel, gfi]
