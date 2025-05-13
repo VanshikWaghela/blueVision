@@ -1,4 +1,4 @@
-# BlueVision
+# blueVision⚡️
 
 Where electrical symbols hide, our pixels seek – faster than an electrician with X-ray goggles.
 

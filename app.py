@@ -25,11 +25,11 @@ RESULTS_DIR = project_root / "app" / "results"
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Set page title and description
-title = "Blueprint Electrical Symbol Detector"
+title = "blueVision ⚡️"
 description = """
 <div style="text-align: center; max-width: 650px; margin: 0 auto;">
   <div>
-    <h1 style="font-weight: 900; font-size: 3rem;">Blueprint Symbol Detector</h1>
+    <h1 style="font-weight: 900; font-size: 3rem;">blueVision ⚡️</h1>
     <p style="margin-bottom: 10px; font-size: 94%">
       Detect electrical symbols (EVSE, Panel, GFI) in blueprint images using custom trained YOLOv8n
     </p>

@@ -15,7 +15,7 @@ from typing import List, Dict, Any, Optional
 from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Query, Request
 # Import StaticFiles for serving images and JSONResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse, HTMLResponse # Keep HTMLResponse for root 
+from fastapi.responses import JSONResponse, HTMLResponse # Keep HTMLResponse for root
 from pydantic import BaseModel, Field
 
 # Ensure the app directory is in sys.path to find detector
@@ -53,13 +53,13 @@ async def lifespan(app: FastAPI):
     print("--- Initializing Application --- ")
     app.mount(f"/{STATIC_DIR_NAME}", StaticFiles(directory=STATIC_DIR_PATH), name=STATIC_DIR_NAME)
     print(f"Mounted static directory at '/{STATIC_DIR_NAME}' serving from {STATIC_DIR_PATH}")
-    
+
     # Use the standard model path defined above
     print(f"Attempting to load model: {STANDARD_MODEL_PATH}")
     try:
         # Initialize with confidence threshold of 0.65 as recommended
         ml_models["blueprint_detector"] = BlueprintDetector(
-             model_path=STANDARD_MODEL_PATH, 
+             model_path=STANDARD_MODEL_PATH,
              conf_threshold=0.65
         )
         print(f"--- BlueprintDetector Model Loaded Successfully (Conf Threshold: 0.65) --- ")
@@ -70,18 +70,18 @@ async def lifespan(app: FastAPI):
     except Exception as e:
          print(f"An unexpected error occurred during model loading: {e}")
          raise
-         
+
     yield
-    
+
     print("--- Shutting Down Application --- ")
     ml_models.clear()
     print("--- BlueprintDetector Model Unloaded --- ")
 
 # --- FastAPI App Initialization ---
 app = FastAPI(
-    title="Blueprint Symbol Detector API",
+    title="blueVision ⚡️ API",
     description="Detects electrical symbols (EVSE, Panel, GFI) in blueprint images using YOLOv8. Returns JSON with detections and URL to annotated image.",
-    version="1.4.0", # Incremented version 
+    version="1.4.0", # Incremented version
     lifespan=lifespan
 )
 
@@ -124,7 +124,7 @@ async def get_detector() -> BlueprintDetector:
     detector = ml_models.get("blueprint_detector")
     if detector is None:
         raise HTTPException(
-             status_code=503, 
+             status_code=503,
              detail="Object detection model is not available."
         )
     return detector
@@ -135,7 +135,7 @@ def transform_detection_results(raw_detections: List) -> List[Dict]:
     if not raw_detections:
         return []
     print(f"Transforming {len(raw_detections)} detections...")
-    
+
     # Check if the detections are in the new format (list of lists) or old format (list of dicts)
     if raw_detections and isinstance(raw_detections[0], list):
         # New format from detect.py: [x1, y1, x2, y2, conf, class_id]
@@ -165,7 +165,7 @@ def transform_detection_results(raw_detections: List) -> List[Dict]:
                 print(f"Warning: Skipping detection {i} due to missing key: {e}. Data: {det}")
             except Exception as e:
                 print(f"Warning: Skipping detection {i} due to error: {e}. Data: {det}")
-    
+
     return transformed_detections
 
 # --- API Endpoints ---
@@ -174,7 +174,7 @@ async def root():
     return HTMLResponse("<html><body><h1>Blueprint Detector API</h1><p>Send POST to /detect</p></body></html>")
 
 @app.post(
-    "/detect", 
+    "/detect",
     response_model=ApiResponse,
     summary="Detect Symbols & Get Image URL",
     description="Upload a blueprint image (PNG or JPG). Returns JSON with detections and a URL to the annotated image. You can choose between 'fast' mode (default) for quick inference or 'accurate' mode for higher accuracy.",
@@ -188,7 +188,7 @@ async def detect_symbols_and_get_url(
 ):
     if file.content_type not in ["image/png", "image/jpeg"]:
         raise HTTPException(
-             status_code=400, 
+             status_code=400,
              detail=f"Invalid file type: {file.content_type}. Please upload PNG/JPG."
         )
 
@@ -215,14 +215,14 @@ async def detect_symbols_and_get_url(
             print(f"Uploaded file saved temporarily to: {tmp_file_path}")
 
         print(f"Running detection on {tmp_file_path} in {mode} mode...")
-        
+
         # Choose detection parameters based on mode
         if mode == "fast":
             # Fast mode: single scale detection
             raw_detections = detector.detect_tiled(
                 image_path=tmp_file_path,
-                tile_size=640,     
-                overlap=0.3,       
+                tile_size=640,
+                overlap=0.3,
                 nms_threshold=0.45
             )
         else:
@@ -230,13 +230,13 @@ async def detect_symbols_and_get_url(
             # Using settings that reduce duplicate boxes while maintaining accuracy
             tiles = [640, 960, 1280] if cv2.imread(tmp_file_path).shape[0] > 1000 else [640, 960]
             overlaps = [0.5] * len(tiles)
-            
+
             all_detections = []
-            
+
             # Run detection at each scale
             for i, (tile_size, overlap) in enumerate(zip(tiles, overlaps)):
                 print(f"Processing scale {i+1}/{len(tiles)}: tile size {tile_size}px")
-                
+
                 # Original orientation
                 detections = detector.detect_tiled(
                     image_path=tmp_file_path,
@@ -245,41 +245,41 @@ async def detect_symbols_and_get_url(
                     nms_threshold=0.6,
                 )
                 all_detections.extend(detections)
-                
+
                 # Horizontal flip for test-time augmentation
                 if True:  # Always use flips in accurate mode
                     img = cv2.imread(tmp_file_path)
                     img_h_flip = cv2.flip(img, 1)  # 1 for horizontal flip
                     flip_path = f"{tmp_file_path}_flip.jpg"
                     cv2.imwrite(flip_path, img_h_flip)
-                    
+
                     flip_detections = detector.detect_tiled(
                         image_path=flip_path,
                         tile_size=tile_size,
                         overlap=overlap,
                         nms_threshold=0.6,
                     )
-                    
+
                     # Transform coordinates back
                     img_width = img.shape[1]
                     for det in flip_detections:
                         det[0] = img_width - det[2]  # x1 becomes width - x2
                         det[2] = img_width - det[0]  # x2 becomes width - x1
-                    
+
                     all_detections.extend(flip_detections)
                     os.remove(flip_path)
-            
+
             # First standardize boxes to fix aspect ratio issues
             standardized_detections = []
             max_aspect_ratio = 3.0
             for box in all_detections:
                 x1, y1, x2, y2, conf, class_id = box
                 width, height = x2 - x1, y2 - y1
-                
+
                 # Skip invalid boxes
                 if width <= 0 or height <= 0:
                     continue
-                
+
                 aspect = width / height
                 # If box is too wide, adjust it
                 if aspect > max_aspect_ratio:
@@ -290,12 +290,12 @@ async def detect_symbols_and_get_url(
                     standardized_detections.append([new_x1, y1, new_x2, y2, conf, class_id])
                 else:
                     standardized_detections.append(box)
-            
+
             # Apply final NMS to remove duplicates
             raw_detections = apply_nms(standardized_detections, 0.4)
             print(f"Multi-scale detection complete. Found {len(raw_detections)} symbols after NMS.")
 
-        # --- Log raw detections --- 
+        # --- Log raw detections ---
         print(f"== RAW DETECTIONS ({len(raw_detections)}) ==")
         for i, det in enumerate(raw_detections):
              print(f"  {i}: {det}")
@@ -313,7 +313,7 @@ async def detect_symbols_and_get_url(
                     saved_image_path = RESULTS_DIR_PATH / filename
                     cv2.imwrite(str(saved_image_path), annotated_image)
                     print(f"Saved annotated image to {saved_image_path}")
-                    
+
                     # Create URL that will be accessible
                     image_url = f"{request.url.scheme}://{request.url.netloc}/{STATIC_DIR_NAME}/{RESULTS_SUBDIR}/{filename}"
                 else:
@@ -364,9 +364,9 @@ if __name__ == "__main__":
     port = int(os.getenv("PORT", "8000"))
     reload = os.getenv("RELOAD", "true").lower() == "true"
     uvicorn.run(
-        "main:app", 
-        host=host, 
-        port=port, 
+        "main:app",
+        host=host,
+        port=port,
         reload=reload,
         log_level="info"
-    ) 
+    )

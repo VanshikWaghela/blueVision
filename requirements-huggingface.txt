@@ -1,0 +1,6 @@
+gradio>=4.3.0
+numpy>=1.22.0
+opencv-python>=4.5.5.64
+ultralytics>=8.0.21
+torch>=2.0.0
+Pillow>=9.0.0 

@@ -1,4 +1,4 @@
-# Blueprint Electrical Symbol Detection - Training Pipeline
+# blueVision
 
 This directory contains scripts for creating and training a YOLOv8 model to detect electrical symbols in construction blueprints.
 
@@ -96,4 +96,4 @@ Key parameters:
 6. Add these manual annotations to your dataset
 7. Retrain with the enhanced dataset
 
-This "human-in-the-loop" approach progressively improves model accuracy with minimal manual effort. 
+This "human-in-the-loop" approach progressively improves model accuracy with minimal manual effort.

@@ -1,0 +1,7 @@
+names:
+- evse
+- panel
+- gfi
+nc: 3
+train: /Users/vanshikwaghela/Projects/TASKS/Palcode/data/crops/images/train
+val: /Users/vanshikwaghela/Projects/TASKS/Palcode/data/crops/images/val
