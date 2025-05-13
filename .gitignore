@@ -54,6 +54,9 @@ data/backgrounds/
 data/images/
 data/raw/
 
+# Allow data/crops/labels to be tracked by git
+!data/crops/labels/
+
 # Results and runs
 runs/
 !runs/train/tiny_symbol_detector4/weights/best.pt
