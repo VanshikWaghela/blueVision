@@ -39,12 +39,8 @@ venv.bak/
 .ipynb_checkpoints
 *.ipynb
 
-# Model files
-*.pt
-!app/models/weights/best.pt
 
 # Project specific - Exclude data folders
-data/
 !data/.gitkeep
 !data/images/.gitkeep
 !data/images/train/.gitkeep
@@ -54,9 +50,8 @@ data/
 # Specific folders to exclude
 data/augmented/
 data/backgrounds/
-data/crops/
+
 data/images/
-data/labels/
 data/raw/
 
 # Results and runs
@@ -91,4 +86,4 @@ Icon
 .TemporaryItems
 .Trashes
 .VolumeIcon.icns
-.com.apple.timemachine.donotpresent 
+.com.apple.timemachine.donotpresent
